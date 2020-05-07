@@ -19,7 +19,8 @@ namespace CalendarProject
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainWindow());
+            MainWindow mainWindow = new MainWindow();
+            Application.Run(mainWindow);
         }
     }
 }
