@@ -12,14 +12,16 @@ namespace CalendarProject
 {
     public partial class CreateAppointmentForm : Form
     {
-        MainWindow mainWindow;
+        #region fields
+        private readonly MainWindow mainWindow;
+        #endregion
+        #region methods
         public CreateAppointmentForm(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
             InitializeComponent();
         }
 
-       
         private void CreateAppointmentButtonClick(object sender, EventArgs e)
         {
             if (ValidateForm())
@@ -29,7 +31,24 @@ namespace CalendarProject
                 mainWindow.DrawMonthCalendar();
                 this.Close();
             }
-            
+        }
+
+        private void CreateAppointmentFormLoad(object sender, EventArgs e)
+        {
+            InitializeUsersListBox();
+            startTimePicker.Value = DateTime.Now;
+            endTimePicker.Value = DateTime.Now.AddHours(Constants.IndexNormalizer);
+            datePicker.Value = DateTime.Now;
+        }
+
+        private void InitializeUsersListBox()
+        {
+            usersListBox.Items.Clear();
+            List<User> possibleInvitedUsers = Calendar.GetPossibleInvitedUsers(datePicker.Value, startTimePicker.Value.TimeOfDay, endTimePicker.Value.TimeOfDay);
+            foreach (User user in possibleInvitedUsers)
+            {
+                usersListBox.Items.Add(user.Username);
+            }
         }
 
         private void CreateAppointment()
@@ -39,7 +58,13 @@ namespace CalendarProject
             TimeSpan startTime = startTimePicker.Value.TimeOfDay;
             TimeSpan endTime = endTimePicker.Value.TimeOfDay;
             DateTime date = datePicker.Value;
-            Appointment appointment = new Appointment(title, description, startTime, endTime, date);
+            List<User> invitedUsers = new List<User> { };
+            List<string> selectedUsers = usersListBox.SelectedItems.Cast<string>().ToList();
+            foreach (string username in selectedUsers)
+            {
+                invitedUsers.Add(Calendar.Users.Find(user => user.Username == username));
+            }
+            Appointment appointment = new Appointment(title, description, startTime, endTime, date, Calendar.CurrentUser, invitedUsers);
             Calendar.SaveAppointment(appointment);
         }
 
@@ -63,7 +88,7 @@ namespace CalendarProject
         {
             MessageBox.Show(message);
         }
-        
+
         private bool CheckImportantFieldsComplete()
         {
             bool allFieldsComplete = true;
@@ -71,26 +96,41 @@ namespace CalendarProject
             {
                 allFieldsComplete = false;
             }
-            
+
             return allFieldsComplete;
         }
 
         private bool CheckStartDateGreaterThanEndDate()
         {
             bool startDateGreaterThanEndDate = true;
-            if(startTimePicker.Value.TimeOfDay > endTimePicker.Value.TimeOfDay)
+            if (startTimePicker.Value.TimeOfDay > endTimePicker.Value.TimeOfDay)
             {
                 startDateGreaterThanEndDate = false;
             }
             return startDateGreaterThanEndDate;
         }
 
-        
-
         private void CreateAppointmentFormFormClosing(object sender, FormClosingEventArgs e)
         {
             mainWindow.DrawMonthCalendar();
             mainWindow.DrawWeekCalendar();
+        }
+
+        #endregion
+
+        private void DatePickerValueChanged(object sender, EventArgs e)
+        {
+            InitializeUsersListBox();
+        }
+
+        private void StartTimePickerValueChanged(object sender, EventArgs e)
+        {
+            InitializeUsersListBox();
+        }
+
+        private void EndTimePickerValueChanged(object sender, EventArgs e)
+        {
+            InitializeUsersListBox();
         }
     }
 }

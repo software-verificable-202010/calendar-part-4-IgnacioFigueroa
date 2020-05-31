@@ -79,10 +79,12 @@ namespace CalendarProject
             this.monthControlPanel = new System.Windows.Forms.Panel();
             this.createAppointment = new System.Windows.Forms.Button();
             this.appointmentsDataGrid = new System.Windows.Forms.DataGridView();
+            this.appointmentId = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.TitleColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.descriptionColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.StartTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.endTime = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.logoutButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.monthCalendarGrid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.weekCalendarGrid)).BeginInit();
             this.monthPanel.SuspendLayout();
@@ -198,6 +200,7 @@ namespace CalendarProject
             // weekCalendarGrid
             // 
             this.weekCalendarGrid.AllowUserToAddRows = false;
+            this.weekCalendarGrid.AllowUserToDeleteRows = false;
             this.weekCalendarGrid.AllowUserToResizeColumns = false;
             this.weekCalendarGrid.AllowUserToResizeRows = false;
             dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
@@ -430,16 +433,25 @@ namespace CalendarProject
             this.appointmentsDataGrid.AllowUserToResizeRows = false;
             this.appointmentsDataGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.appointmentsDataGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.appointmentId,
             this.TitleColumn,
             this.descriptionColumn,
             this.StartTime,
             this.endTime});
-            this.appointmentsDataGrid.Location = new System.Drawing.Point(899, 25);
+            this.appointmentsDataGrid.Location = new System.Drawing.Point(899, 65);
             this.appointmentsDataGrid.Name = "appointmentsDataGrid";
             this.appointmentsDataGrid.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.appointmentsDataGrid.RowHeadersVisible = false;
-            this.appointmentsDataGrid.Size = new System.Drawing.Size(557, 756);
+            this.appointmentsDataGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.appointmentsDataGrid.Size = new System.Drawing.Size(557, 716);
             this.appointmentsDataGrid.TabIndex = 12;
+            this.appointmentsDataGrid.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.AppointmentsDataGridCellClick);
+            // 
+            // appointmentId
+            // 
+            this.appointmentId.HeaderText = "appointmentId";
+            this.appointmentId.Name = "appointmentId";
+            this.appointmentId.Visible = false;
             // 
             // TitleColumn
             // 
@@ -464,11 +476,22 @@ namespace CalendarProject
             this.endTime.HeaderText = "End Time";
             this.endTime.Name = "endTime";
             // 
+            // logoutButton
+            // 
+            this.logoutButton.Location = new System.Drawing.Point(1381, 12);
+            this.logoutButton.Name = "logoutButton";
+            this.logoutButton.Size = new System.Drawing.Size(75, 23);
+            this.logoutButton.TabIndex = 13;
+            this.logoutButton.Text = "Log Out";
+            this.logoutButton.UseVisualStyleBackColor = true;
+            this.logoutButton.Click += new System.EventHandler(this.LogoutButtonClick);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1519, 868);
+            this.ClientSize = new System.Drawing.Size(1470, 868);
+            this.Controls.Add(this.logoutButton);
             this.Controls.Add(this.appointmentsDataGrid);
             this.Controls.Add(this.weekPanel);
             this.Controls.Add(this.weekControlPanel);
@@ -478,6 +501,7 @@ namespace CalendarProject
             this.Controls.Add(this.viewModeSelector);
             this.Name = "MainWindow";
             this.Text = "Calendar";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWindowFormClosed);
             this.Load += new System.EventHandler(this.MainWindowLoad);
             ((System.ComponentModel.ISupportInitialize)(this.monthCalendarGrid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.weekCalendarGrid)).EndInit();
@@ -524,6 +548,8 @@ namespace CalendarProject
         private Panel weekControlPanel;
         private Label currentDateWeekTitle;
         private DataGridView appointmentsDataGrid;
+        private Button logoutButton;
+        private DataGridViewTextBoxColumn appointmentId;
         private DataGridViewTextBoxColumn TitleColumn;
         private DataGridViewTextBoxColumn descriptionColumn;
         private DataGridViewTextBoxColumn StartTime;

@@ -35,8 +35,11 @@ namespace CalendarProject
         public const int MaxLengthTitleWithTimeToShow = 3;
         public const int MaxLenghtTitleWithoutTime = 13;
         public const int MaxLenghtTileWithoutTimeToShow = 9;
-        public const string SerializationPath = "../../bin/appointments.bin";
-        public const string appointmentsSeparator = "\n";
+        public const string AppointmentsSerializationPath = "../../appointments.bin";
+        public const string UsersSerializationPath = "../../users.bin";
+        public const string AppointmentsSeparator = "\n";
+        public const string EmptyOrNullUsernameMessage = "Please enter a valid username";
+        public const string NotYourAppointmentMessage = "You are not the owner of this appointment";
         public static readonly List<(TimeSpan, TimeSpan)> WeekCalendarTimeIntervals = new List<(TimeSpan, TimeSpan)>
         {
             (new TimeSpan(0,0,0), new TimeSpan(0,59,59)),

@@ -19,8 +19,14 @@ namespace CalendarProject
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            LoginForm loginForm = new LoginForm();
             MainWindow mainWindow = new MainWindow();
-            Application.Run(mainWindow);
+            WindowsController windowsController = new WindowsController(loginForm, mainWindow);
+            loginForm.OnLogin += windowsController.ChangeToMainWindow;
+            loginForm.OnLogin += mainWindow.MainWindowLoad;
+            mainWindow.OnLogout += windowsController.ChangeToLoginWindow;
+            mainWindow.OnLogout += loginForm.LoginFormLoad;
+            Application.Run();
         }
     }
 }
