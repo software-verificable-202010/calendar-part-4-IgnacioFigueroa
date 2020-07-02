@@ -24,15 +24,6 @@ namespace CalendarProject
             this.selectedAppointmentId = selectedAppointmentId;
         }
 
-        private void InitializeUsersListBox()
-        {
-            usersListBox.Items.Clear();
-            List<User> possibleInvitedUsers = Calendar.GetPossibleInvitedUsers(datePicker.Value, startTimePicker.Value.TimeOfDay, endTimePicker.Value.TimeOfDay);
-            foreach (User user in possibleInvitedUsers)
-            {
-                usersListBox.Items.Add(user.Username);
-            }
-        }
         private void EditAppointmentLoad(object sender, EventArgs e)
         {
             Appointment appointmentToEdit = Calendar.GetAppointmentFromId(selectedAppointmentId);
@@ -43,18 +34,6 @@ namespace CalendarProject
             datePicker.Value = appointmentToEdit.Date;
             InitializeUsersListBox();
             SelectInvitedUsers();
-        }
-        private void SelectInvitedUsers()
-        {
-            Appointment appointmentToEdit = Calendar.GetAppointmentFromId(selectedAppointmentId);
-            List<string> invitedUsersUsernames = appointmentToEdit.InvitedUsers.Select(user => user.Username).ToList();
-            for (int currentIndex = 0; currentIndex < usersListBox.Items.Count; currentIndex++)
-            {
-                if (invitedUsersUsernames.Contains(usersListBox.Items[currentIndex].ToString()))
-                {
-                    usersListBox.SetSelected(currentIndex, true);
-                }
-            }
         }
 
         private void EditAppointmentButtonClickUpdateAppointment(object sender, EventArgs e)
@@ -69,7 +48,7 @@ namespace CalendarProject
             List<string> selectedUsers = usersListBox.SelectedItems.Cast<string>().ToList();
             foreach (string username in selectedUsers)
             {
-                invitedUsers.Add(Calendar.Users.Find(user => user.Username == username));
+                invitedUsers.Add(Calendar.Users.Find(user => user.UserName == username));
             }
             appointmentToEdit.InvitedUsers = invitedUsers;
             Calendar.SerializeAppointments();
@@ -95,6 +74,29 @@ namespace CalendarProject
             SelectInvitedUsers();
         }
 
+        private void InitializeUsersListBox()
+        {
+            usersListBox.Items.Clear();
+            List<User> possibleInvitedUsers = Calendar.GetPossibleInvitedUsers(datePicker.Value, startTimePicker.Value.TimeOfDay, endTimePicker.Value.TimeOfDay);
+            foreach (User user in possibleInvitedUsers)
+            {
+                usersListBox.Items.Add(user.UserName);
+            }
+        }
+
+        private void SelectInvitedUsers()
+        {
+            Appointment appointmentToEdit = Calendar.GetAppointmentFromId(selectedAppointmentId);
+            List<string> invitedUsersUsernames = appointmentToEdit.InvitedUsers.Select(user => user.UserName).ToList();
+            for (int currentIndex = 0; currentIndex < usersListBox.Items.Count; currentIndex++)
+            {
+                if (invitedUsersUsernames.Contains(usersListBox.Items[currentIndex].ToString()))
+                {
+                    usersListBox.SetSelected(currentIndex, true);
+                }
+            }
+        }
+        
         private void DeleteAppointmentButtonClick(object sender, EventArgs e)
         {
             Appointment appointmentToDelete = Calendar.GetAppointmentFromId(selectedAppointmentId);

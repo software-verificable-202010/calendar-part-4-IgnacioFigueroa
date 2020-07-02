@@ -63,7 +63,7 @@ namespace CalendarProject
         public static List<string[]> GetCurrentWeekHours()
         {
             List<string[]> weekHours = new List<string[]> { };
-            List<string> currentHourToInsert;
+            List<string> currentHourToInsert = new List<string> { };
             foreach ((TimeSpan, TimeSpan) hourInterval in Constants.WeekCalendarTimeIntervals)
             {
                 currentHourToInsert = InitializeEmptyWeekCalendarHour(hourInterval);
@@ -74,82 +74,10 @@ namespace CalendarProject
             return weekHoursWithAppointments;
         }
 
-        private static List<string[]> InsertAppointmentsOnWeekCalendarHour(List<string[]> weekHours)
-        {
-            List<DateTime> currentWeekDates = GetCurrentWeekDates();
-            List<Appointment> appointmentsToInsert = new List<Appointment> { };
-            int columnIndexToInsert = Constants.FirstDayOfweek;
-            int intervalIndexOfStartTime = 0;
-            int intervalIndexOfEndTime = 0;
-            string appointmentNameWithTime = "";
-            string appointmentNameWithoutTime = "";
-            StringBuilder appointmentBuilder = new StringBuilder("");
-            foreach (DateTime dateToInsertInto in currentWeekDates)
-            {
-                List<Appointment> currentUserAppointments = appointments.FindAll(appointment => appointment.Date.Date == dateToInsertInto.Date && appointment.Owner.Username == currentUser.Username);
-                List<Appointment> appointmentsUserHasBeenInvited = appointments.FindAll(appointment => appointment.Date.Date == dateToInsertInto.Date && appointment.InvitedUsers.Select(user => user.Username).Contains(currentUser.Username));
-                appointmentsToInsert = currentUserAppointments.Concat(appointmentsUserHasBeenInvited).ToList();
-                foreach (Appointment appointmentToInsert in appointmentsToInsert)
-                {
-                    (TimeSpan, TimeSpan) intervalOfStartTime = Constants.WeekCalendarTimeIntervals.Find(interval => appointmentToInsert.StartTime <= interval.Item2);
-                    intervalIndexOfStartTime = Constants.WeekCalendarTimeIntervals.IndexOf(intervalOfStartTime);
-                    (TimeSpan, TimeSpan) intervalOfEndTime = Constants.WeekCalendarTimeIntervals.Find(interval => appointmentToInsert.EndTime <= interval.Item2);
-                    intervalIndexOfEndTime = Constants.WeekCalendarTimeIntervals.IndexOf(intervalOfEndTime);
-                    appointmentNameWithTime = GetAppointmentNameWithTimeFormat(appointmentToInsert);
-                    appointmentBuilder.Clear();
-                    appointmentBuilder.Append(weekHours[intervalIndexOfStartTime][columnIndexToInsert]);
-                    appointmentBuilder.Append($"{appointmentToInsert.StartTime.ToString(Constants.TimeSpanHourMinutesFormat)}-{appointmentNameWithTime}\n");
-                    weekHours[intervalIndexOfStartTime][columnIndexToInsert] = appointmentBuilder.ToString();
-                    appointmentNameWithoutTime = GetAppointmentNameWithoutTimeFormat(appointmentToInsert);
-                    if (intervalIndexOfStartTime != intervalIndexOfEndTime)
-                    {
-                        for (int currentIntervalIndex = intervalIndexOfStartTime + Constants.IndexNormalizer; currentIntervalIndex <= intervalIndexOfEndTime; currentIntervalIndex++)
-                        {
-                            appointmentBuilder.Clear();
-                            appointmentBuilder.Append(weekHours[currentIntervalIndex][columnIndexToInsert]);
-                            appointmentBuilder.Append($"{appointmentNameWithoutTime}\n");
-                            weekHours[currentIntervalIndex][columnIndexToInsert] = appointmentBuilder.ToString();
-                        }
-                    }
-                }
-                columnIndexToInsert++;
-            }
-            return weekHours;
-        }
-
-        public static string GetAppointmentNameWithTimeFormat(Appointment appointmentToInsert)
-        {
-            string appointmentNamewithTime;
-            if (appointmentToInsert.Title.Length > Constants.MaxLengthTitleWithTime)
-            {
-                appointmentNamewithTime = $"{appointmentToInsert.Title.Substring(0, Constants.MaxLengthTitleWithTimeToShow)}...";
-            }
-            else
-            {
-                appointmentNamewithTime = appointmentToInsert.Title;
-            }
-            return appointmentNamewithTime;
-        }
-        //This function gives format the title to be shown properly in the week calendar.
-        public static string GetAppointmentNameWithoutTimeFormat(Appointment appointmentToInsert)
-        {
-            string appointmentName;
-            if (appointmentToInsert.Title.Length > Constants.MaxLenghtTitleWithoutTime)
-            {
-                appointmentName = $"{appointmentToInsert.Title.Substring(0, Constants.MaxLenghtTileWithoutTimeToShow)}...";
-            }
-            else
-            {
-                appointmentName = appointmentToInsert.Title;
-            }
-
-            return appointmentName;
-        }
-
         public static List<string[]> GetAppointmentsDetailsMonthCalendar(DateTime selectedDate)
         {
-            List<Appointment> selectedDateUserOwnerAppointments = appointments.FindAll(appointment => appointment.Date.Date == selectedDate.Date && appointment.Owner.Username == currentUser.Username);
-            List<Appointment> appointmentsUserHasBeenInvited = appointments.FindAll(appointment => appointment.Date.Date == selectedDate.Date && appointment.InvitedUsers.Select(user => user.Username).Contains(currentUser.Username));
+            List<Appointment> selectedDateUserOwnerAppointments = appointments.FindAll(appointment => appointment.Date.Date == selectedDate.Date && appointment.Owner.UserName == currentUser.UserName);
+            List<Appointment> appointmentsUserHasBeenInvited = appointments.FindAll(appointment => appointment.Date.Date == selectedDate.Date && appointment.InvitedUsers.Select(user => user.UserName).Contains(currentUser.UserName));
             List<Appointment> selectedDateAppointments = selectedDateUserOwnerAppointments.Concat(appointmentsUserHasBeenInvited).ToList();
             List<string[]> appointmentsDetails = FormatAppointmentsDetails(selectedDateAppointments);
             return appointmentsDetails;
@@ -157,49 +85,12 @@ namespace CalendarProject
 
         public static List<string[]> GetAppointmentsDetailsWeekCalendar(DateTime selectedDate, (TimeSpan, TimeSpan) timeInterval)
         {
-            List<Appointment> selectedDateUserOwnerAppointments = appointments.FindAll(appointment => appointment.Date.Date == selectedDate.Date && appointment.Owner.Username == currentUser.Username);
-            List<Appointment> appointmentsUserHasBeenInvited = appointments.FindAll(appointment => appointment.Date.Date == selectedDate.Date && appointment.InvitedUsers.Select(user => user.Username).Contains(currentUser.Username));
+            List<Appointment> selectedDateUserOwnerAppointments = appointments.FindAll(appointment => appointment.Date.Date == selectedDate.Date && appointment.Owner.UserName == currentUser.UserName);
+            List<Appointment> appointmentsUserHasBeenInvited = appointments.FindAll(appointment => appointment.Date.Date == selectedDate.Date && appointment.InvitedUsers.Select(user => user.UserName).Contains(currentUser.UserName));
             List<Appointment> selectedDateAppointments = selectedDateUserOwnerAppointments.Concat(appointmentsUserHasBeenInvited).ToList();
             List<Appointment> selectedDateAndTimeAppointments = selectedDateAppointments.FindAll(appointment => FilterAppointmentIntersectsInterval(appointment, timeInterval));
             List<string[]> appointmentsDetails = FormatAppointmentsDetails(selectedDateAndTimeAppointments);
             return appointmentsDetails;
-        }
-
-        public static List<string[]> FormatAppointmentsDetails(List<Appointment> appointmentsDetails)
-        {
-            List<string[]> appointmentsDetailsFormated = new List<string[]> { };
-            foreach (Appointment appointment in appointmentsDetails)
-            {
-
-                appointmentsDetailsFormated.Add(new string[] {appointment.Id.ToString(),
-                                                      appointment.Title,
-                                                      appointment.Description,
-                                                      appointment.StartTime.ToString(Constants.TimeSpanHourMinutesFormat),
-                                                      appointment.EndTime.ToString(Constants.TimeSpanHourMinutesFormat)});
-            }
-            return appointmentsDetailsFormated;
-        }
-
-        public static bool FilterAppointmentIntersectsInterval(Appointment appointment, (TimeSpan, TimeSpan) timeInterval)
-        {
-            bool appointmentIntersects = false;
-            bool appointmentStartTimeLowerThanIntervalStart = appointment.StartTime <= timeInterval.Item1;
-            bool appointmentEndTimeBetweenTimeInterval = appointment.EndTime >= timeInterval.Item1 && appointment.EndTime <= timeInterval.Item2;
-            if (appointmentStartTimeLowerThanIntervalStart && appointmentEndTimeBetweenTimeInterval)
-            {
-                appointmentIntersects = true;
-            }
-            bool appointmentEndTimeGreaterThanIntervalEnd = appointment.EndTime >= timeInterval.Item2;
-            bool appointmentStartTimeBetweenTimeInterval = appointment.StartTime >= timeInterval.Item1 && appointment.StartTime <= timeInterval.Item2;
-            if (appointmentEndTimeGreaterThanIntervalEnd && appointmentStartTimeBetweenTimeInterval)
-            {
-                appointmentIntersects = true;
-            }
-            if (appointmentStartTimeLowerThanIntervalStart && appointmentEndTimeGreaterThanIntervalEnd)
-            {
-                appointmentIntersects = true;
-            }
-            return appointmentIntersects;
         }
 
         public static List<DateTime> GetCurrentWeekDates()
@@ -265,12 +156,6 @@ namespace CalendarProject
             }
         }
 
-        public static void SetCurrentAppointmentId(List<Appointment> appointments)
-        {
-            int lastId = appointments.Max(appointment => appointment.Id);
-            Appointment.nextId = lastId + Constants.IndexNormalizer;
-        }
-
         public static void LoadUsers()
         {
             users = new List<User> { };
@@ -282,32 +167,33 @@ namespace CalendarProject
                     users = (List<User>)userData.Deserialize(stream);
                 }
             }
-            catch
+            catch (Exception)
             {
+                //We do not do anything because when serialize is called it creates the file if it doesn't exists.
                 return;
             }
         }
-        public static void LogInOrCreateUser(string username)
+        public static void LogInOrCreateUser(string userName)
         {
-            List<User> coincidentUsers = users.FindAll(user => user.Username == username);
+            List<User> coincidentUsers = users.FindAll(user => user.UserName == userName);
             if (coincidentUsers.Any())
             {
                 currentUser = coincidentUsers.First();
             }
             else
             {
-                CreateUser(username);
+                CreateUser(userName);
             }
         }
 
         public static List<User> GetPossibleInvitedUsers(DateTime date, TimeSpan startTime, TimeSpan endTime)
         {
-            List<User> possibleUsers = users.FindAll(user => user.Username != currentUser.Username);
+            List<User> possibleUsers = users.FindAll(user => user.UserName != currentUser.UserName);
             List<User> validUsers = new List<User> { };
             (TimeSpan, TimeSpan) actualInterval = (startTime, endTime);
             foreach (User user in possibleUsers)
             {
-                List<Appointment> possibleUserIntersectAppointments = appointments.FindAll(appointment => appointment.Owner.Username == user.Username
+                List<Appointment> possibleUserIntersectAppointments = appointments.FindAll(appointment => appointment.Owner.UserName == user.UserName
                                                                                 && FilterAppointmentIntersectsDateTime(date, actualInterval, appointment));
                 if (!possibleUserIntersectAppointments.Any())
                 {
@@ -324,6 +210,12 @@ namespace CalendarProject
             return selectedAppointment;
         }
 
+        public static void DeleteAppointment(ref Appointment appointment)
+        {
+            appointments.Remove(appointment);
+            SerializeAppointments();
+        }
+
         public static void SerializeAppointments()
         {
             using (Stream stream = File.Open(Constants.AppointmentsSerializationPath, FileMode.OpenOrCreate))
@@ -332,55 +224,6 @@ namespace CalendarProject
                 appointmentsData.Serialize(stream, appointments);
             }
 
-        }
-
-        public static void DeleteAppointment(ref Appointment appointment)
-        {
-            appointments.Remove(appointment);
-            SerializeAppointments();
-        }
-
-        private static bool FilterAppointmentIntersectsDateTime(DateTime date, (TimeSpan, TimeSpan) timeInterval, Appointment appointment)
-        {
-            bool appointmentIntersectsDateTime = false;
-            if (appointment.Date.Date == date.Date)
-            {
-                if (FilterAppointmentIntersectsInterval(appointment, timeInterval))
-                {
-                    appointmentIntersectsDateTime = true;
-                }
-            }
-            return appointmentIntersectsDateTime;
-        }
-
-        private static void CreateUser(string username)
-        {
-            User newUser = new User(username);
-            users.Add(newUser);
-            currentUser = newUser;
-            SerializeUsers();
-        }
-        private static List<string> InitializeEmptyWeekCalendarHour((TimeSpan, TimeSpan) hourInterval)
-        {
-            List<string> emptyHour = new List<string> { };
-            TimeSpan intervalInitialTime = hourInterval.Item1;
-            TimeSpan intervalEndTime = hourInterval.Item2;
-            emptyHour.Add($"{intervalInitialTime.Hours} Hrs - {intervalEndTime.Hours + 1} Hrs");
-            for (int dayIndex = Constants.FirstDayOfWeekIndex; dayIndex <= Constants.DaysIndexInWeek; dayIndex++)
-            {
-                emptyHour.Add(Constants.DataGridPlaceHolder);
-            }
-
-            return emptyHour;
-        }
-
-        private static void SerializeUsers()
-        {
-            using (Stream stream = File.Open(Constants.UsersSerializationPath, FileMode.OpenOrCreate))
-            {
-                BinaryFormatter usersData = new BinaryFormatter();
-                usersData.Serialize(stream, users);
-            }
         }
 
         private static List<string[]> CreateMonthCalendarWeeks(int firstDayIndexOnWeek, int currentMonthDays)
@@ -416,17 +259,7 @@ namespace CalendarProject
             }
             return monthWeeks;
         }
-        private static bool DaysLimitReached(int dayCounter, int daysInMonth)
-        {
-            if (dayCounter > daysInMonth)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+
         private static List<string> InitializeEmptyMonthCalendarWeek()
         {
             List<string> emptyWeek = new List<string> { };
@@ -441,8 +274,8 @@ namespace CalendarProject
         private static string InsertAppointmentsOnMonthCalendarDay(string dayNumber)
         {
             DateTime appointmentDate = new DateTime(currentDate.Year, currentDate.Month, Convert.ToInt32(dayNumber));
-            List<Appointment> currentUserAppointments = appointments.FindAll(appointment => appointment.Date.Date == appointmentDate.Date && appointment.Owner.Username == currentUser.Username);
-            List<Appointment> appointmentsUserHasBeenInvited = appointments.FindAll(appointment => appointment.Date.Date == appointmentDate.Date && appointment.InvitedUsers.Select(user => user.Username).Contains(currentUser.Username));
+            List<Appointment> currentUserAppointments = appointments.FindAll(appointment => appointment.Date.Date == appointmentDate.Date && appointment.Owner.UserName == currentUser.UserName);
+            List<Appointment> appointmentsUserHasBeenInvited = appointments.FindAll(appointment => appointment.Date.Date == appointmentDate.Date && appointment.InvitedUsers.Select(user => user.UserName).Contains(currentUser.UserName));
             List<Appointment> appointmentsToInsert = currentUserAppointments.Concat(appointmentsUserHasBeenInvited).ToList();
             string dayNumberWithAppointments = dayNumber;
             string appointmentName = "";
@@ -464,6 +297,177 @@ namespace CalendarProject
             return dayNumberWithAppointments;
         }
 
+        private static bool DaysLimitReached(int dayCounter, int daysInMonth)
+        {
+            if (dayCounter > daysInMonth)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private static List<string> InitializeEmptyWeekCalendarHour((TimeSpan, TimeSpan) hourInterval)
+        {
+            List<string> emptyHour = new List<string> { };
+            TimeSpan intervalInitialTime = hourInterval.Item1;
+            TimeSpan intervalEndTime = hourInterval.Item2;
+            emptyHour.Add($"{intervalInitialTime.Hours} Hrs - {intervalEndTime.Hours + 1} Hrs");
+            for (int dayIndex = Constants.FirstDayOfWeekIndex; dayIndex <= Constants.DaysIndexInWeek; dayIndex++)
+            {
+                emptyHour.Add(Constants.DataGridPlaceHolder);
+            }
+
+            return emptyHour;
+        }
+
+        private static List<string[]> InsertAppointmentsOnWeekCalendarHour(List<string[]> weekHours)
+        {
+            List<DateTime> currentWeekDates = GetCurrentWeekDates();
+            List<Appointment> appointmentsToInsert = new List<Appointment> { };
+            int columnIndexToInsert = Constants.FirstDayOfweek;
+            int intervalIndexOfStartTime = 0;
+            int intervalIndexOfEndTime = 0;
+            string appointmentNameWithTime = "";
+            string appointmentNameWithoutTime = "";
+            StringBuilder appointmentBuilder = new StringBuilder("");
+            foreach (DateTime dateToInsertInto in currentWeekDates)
+            {
+                List<Appointment> currentUserAppointments = appointments.FindAll(appointment => appointment.Date.Date == dateToInsertInto.Date && appointment.Owner.UserName == currentUser.UserName);
+                List<Appointment> appointmentsUserHasBeenInvited = appointments.FindAll(appointment => appointment.Date.Date == dateToInsertInto.Date && appointment.InvitedUsers.Select(user => user.UserName).Contains(currentUser.UserName));
+                appointmentsToInsert = currentUserAppointments.Concat(appointmentsUserHasBeenInvited).ToList();
+                foreach (Appointment appointmentToInsert in appointmentsToInsert)
+                {
+                    (TimeSpan, TimeSpan) intervalOfStartTime = Constants.WeekCalendarTimeIntervals.Find(interval => appointmentToInsert.StartTime <= interval.Item2);
+                    intervalIndexOfStartTime = Constants.WeekCalendarTimeIntervals.IndexOf(intervalOfStartTime);
+                    (TimeSpan, TimeSpan) intervalOfEndTime = Constants.WeekCalendarTimeIntervals.Find(interval => appointmentToInsert.EndTime <= interval.Item2);
+                    intervalIndexOfEndTime = Constants.WeekCalendarTimeIntervals.IndexOf(intervalOfEndTime);
+                    appointmentNameWithTime = GetAppointmentNameWithTimeFormat(appointmentToInsert);
+                    appointmentBuilder.Clear();
+                    appointmentBuilder.Append(weekHours[intervalIndexOfStartTime][columnIndexToInsert]);
+                    appointmentBuilder.Append($"{appointmentToInsert.StartTime.ToString(Constants.TimeSpanHourMinutesFormat)}-{appointmentNameWithTime}\n");
+                    weekHours[intervalIndexOfStartTime][columnIndexToInsert] = appointmentBuilder.ToString();
+                    appointmentNameWithoutTime = GetAppointmentNameWithoutTimeFormat(appointmentToInsert);
+                    if (intervalIndexOfStartTime != intervalIndexOfEndTime)
+                    {
+                        for (int currentIntervalIndex = intervalIndexOfStartTime + Constants.IndexNormalizer; currentIntervalIndex <= intervalIndexOfEndTime; currentIntervalIndex++)
+                        {
+                            appointmentBuilder.Clear();
+                            appointmentBuilder.Append(weekHours[currentIntervalIndex][columnIndexToInsert]);
+                            appointmentBuilder.Append($"{appointmentNameWithoutTime}\n");
+                            weekHours[currentIntervalIndex][columnIndexToInsert] = appointmentBuilder.ToString();
+                        }
+                    }
+                }
+                columnIndexToInsert++;
+            }
+            return weekHours;
+        }
+
+        private static string GetAppointmentNameWithTimeFormat(Appointment appointmentToInsert)
+        {
+            string appointmentNamewithTime = "";
+            if (appointmentToInsert.Title.Length > Constants.MaxLengthTitleWithTime)
+            {
+                appointmentNamewithTime = $"{appointmentToInsert.Title.Substring(0, Constants.MaxLengthTitleWithTimeToShow)}...";
+            }
+            else
+            {
+                appointmentNamewithTime = appointmentToInsert.Title;
+            }
+            return appointmentNamewithTime;
+        }
+
+        private static string GetAppointmentNameWithoutTimeFormat(Appointment appointmentToInsert)
+        {
+            string appointmentName = "";
+            if (appointmentToInsert.Title.Length > Constants.MaxLenghtTitleWithoutTime)
+            {
+                appointmentName = $"{appointmentToInsert.Title.Substring(0, Constants.MaxLenghtTileWithoutTimeToShow)}...";
+            }
+            else
+            {
+                appointmentName = appointmentToInsert.Title;
+            }
+
+            return appointmentName;
+        }
+
+        private static List<string[]> FormatAppointmentsDetails(List<Appointment> appointmentsDetails)
+        {
+            List<string[]> appointmentsDetailsFormated = new List<string[]> { };
+            foreach (Appointment appointment in appointmentsDetails)
+            {
+
+                appointmentsDetailsFormated.Add(new string[] {appointment.Id.ToString(),
+                                                      appointment.Title,
+                                                       appointment.Description,
+                                                      appointment.StartTime.ToString(Constants.TimeSpanHourMinutesFormat),
+                                                      appointment.EndTime.ToString(Constants.TimeSpanHourMinutesFormat)});
+            }
+            return appointmentsDetailsFormated;
+        }
+
+        private static void SetCurrentAppointmentId(List<Appointment> appointments)
+        {
+            int lastId = appointments.Max(appointment => appointment.Id);
+            Appointment.NextId = lastId + Constants.IndexNormalizer;
+        }
+
+        private static bool FilterAppointmentIntersectsDateTime(DateTime date, (TimeSpan, TimeSpan) timeInterval, Appointment appointment)
+        {
+            bool appointmentIntersectsDateTime = false;
+            if (appointment.Date.Date == date.Date)
+            {
+                if (FilterAppointmentIntersectsInterval(appointment, timeInterval))
+                {
+                    appointmentIntersectsDateTime = true;
+                }
+            }
+            return appointmentIntersectsDateTime;
+        }
+
+        private static bool FilterAppointmentIntersectsInterval(Appointment appointment, (TimeSpan, TimeSpan) timeInterval)
+        {
+            bool appointmentIntersects = false;
+            bool appointmentStartTimeLowerThanIntervalStart = appointment.StartTime <= timeInterval.Item1;
+            bool appointmentEndTimeBetweenTimeInterval = appointment.EndTime >= timeInterval.Item1 && appointment.EndTime <= timeInterval.Item2;
+            if (appointmentStartTimeLowerThanIntervalStart && appointmentEndTimeBetweenTimeInterval)
+            {
+                appointmentIntersects = true;
+            }
+            bool appointmentEndTimeGreaterThanIntervalEnd = appointment.EndTime >= timeInterval.Item2;
+            bool appointmentStartTimeBetweenTimeInterval = appointment.StartTime >= timeInterval.Item1 && appointment.StartTime <= timeInterval.Item2;
+            if (appointmentEndTimeGreaterThanIntervalEnd && appointmentStartTimeBetweenTimeInterval)
+            {
+                appointmentIntersects = true;
+            }
+            if (appointmentStartTimeLowerThanIntervalStart && appointmentEndTimeGreaterThanIntervalEnd)
+            {
+                appointmentIntersects = true;
+            }
+            return appointmentIntersects;
+        }
+
+        private static void CreateUser(string username)
+        {
+            User newUser = new User(username);
+            users.Add(newUser);
+            currentUser = newUser;
+            SerializeUsers();
+        }
+
+
+        private static void SerializeUsers()
+        {
+            using (Stream stream = File.Open(Constants.UsersSerializationPath, FileMode.OpenOrCreate))
+            {
+                BinaryFormatter usersData = new BinaryFormatter();
+                usersData.Serialize(stream, users);
+            }
+        }
 
         #endregion
     }

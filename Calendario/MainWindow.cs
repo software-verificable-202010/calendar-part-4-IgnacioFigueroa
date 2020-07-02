@@ -8,7 +8,9 @@ namespace CalendarProject
 {
     public partial class MainWindow : Form
     {
+        #region fields
         public event EventHandler OnLogout;
+        #endregion 
         #region methods
         public MainWindow()
         {
@@ -17,6 +19,15 @@ namespace CalendarProject
 
         }
 
+        public void MainWindowLoad(object sender, EventArgs e)
+        {
+            HideWeekCalendar();
+            DrawWeekCalendar();
+            DrawMonthCalendar();
+            viewModeSelector.SelectedIndex = Constants.MonthCalendarSelectorIndex;
+            monthCalendarGrid.ClearSelection();
+            appointmentsDataGrid.ClearSelection();
+        }
         public void DrawMonthCalendar()
         {
             monthCalendarGrid.Rows.Clear();
@@ -41,23 +52,13 @@ namespace CalendarProject
                 weekCalendarGrid.Rows.Add(hour);
             }
         }
-        public void MainWindowLoad(object sender, EventArgs e)
-        {
-            HideWeekCalendar();
-            DrawWeekCalendar();
-            DrawMonthCalendar();
-            viewModeSelector.SelectedIndex = Constants.MonthCalendarSelectorIndex;
-            monthCalendarGrid.ClearSelection();
-            appointmentsDataGrid.ClearSelection();
-        }
-
         private void ChangeWeekCalendarMonthTitle()
         {
             string monthTitle = GetWeekCalendarMonthTitle();
             currentDateWeekTitle.Text = monthTitle;
         }
 
-        private string GetWeekCalendarMonthTitle()
+        private static string GetWeekCalendarMonthTitle()
         {
             List<DateTime> currentWeekDates = Calendar.GetCurrentWeekDates();
             string monthTitle = "";
@@ -81,18 +82,6 @@ namespace CalendarProject
                 monthTitle = $"{firstDayOfWeek.ToString(Constants.MonthFormat, CultureInfo.InvariantCulture)} of {firstDayOfWeek.Year.ToString()}".ToUpper();
             }
             return monthTitle;
-        }
-
-        private void ChangeWeekCalendarHeaders()
-        {
-            List<int> currentWeekDaysNumbers = Calendar.GetCurrentWeekDays();
-            string dayName;
-            for (int currentDayNumber = Constants.FirstDayOfWeekIndex; currentDayNumber <= Constants.DaysIndexInWeek; currentDayNumber++)
-            {
-                dayName = Enum.GetName(typeof(Constants.DaysOfWeekAbbreviated), currentDayNumber);
-                weekCalendarGrid.Columns[currentDayNumber + Constants.IndexNormalizer].HeaderText = $"{dayName} {currentWeekDaysNumbers[currentDayNumber]}";
-            }
-
         }
 
         private void NextMonthClick(object sender, EventArgs e)
@@ -119,6 +108,18 @@ namespace CalendarProject
             Calendar.CurrentDate = Calendar.CurrentDate.AddDays(Constants.NextWeekInterval);
             ChangeWeekCalendarHeaders();
             DrawWeekCalendar();
+        }
+
+        private void ChangeWeekCalendarHeaders()
+        {
+            List<int> currentWeekDaysNumbers = Calendar.GetCurrentWeekDays();
+            string dayName = "";
+            for (int currentDayNumber = Constants.FirstDayOfWeekIndex; currentDayNumber <= Constants.DaysIndexInWeek; currentDayNumber++)
+            {
+                dayName = Enum.GetName(typeof(Constants.DaysOfWeekAbbreviated), currentDayNumber);
+                weekCalendarGrid.Columns[currentDayNumber + Constants.IndexNormalizer].HeaderText = $"{dayName} {currentWeekDaysNumbers[currentDayNumber]}";
+            }
+
         }
 
         private void ViewModeSelectorSelectedValueChanged(object sender, EventArgs e)
@@ -185,7 +186,7 @@ namespace CalendarProject
             ShowAppointmentDetailsForSelectedDateTime(appointmentDetails);
         }
 
-        private List<string[]> GetAppointmentsOfSelectedDayMonthCalendar(string currentCellValue)
+        private static List<string[]> GetAppointmentsOfSelectedDayMonthCalendar(string currentCellValue)
         {
             string selectedDay = currentCellValue.Split(new string[] { Constants.AppointmentsSeparator }, StringSplitOptions.None)[Constants.MonthCalendarSelectorIndex];
             DateTime selectedDate = new DateTime(Calendar.CurrentDate.Year, Calendar.CurrentDate.Month, Convert.ToInt32(selectedDay));
@@ -206,7 +207,7 @@ namespace CalendarProject
             ShowAppointmentDetailsForSelectedDateTime(appointments);
         }
 
-        private List<string[]> GetAppointmentsOfSelectedDayWeekCalendar(DataGridViewCell selectedCell)
+        private static List<string[]> GetAppointmentsOfSelectedDayWeekCalendar(DataGridViewCell selectedCell)
         {
             int columnIndex = selectedCell.ColumnIndex;
             int rowIndex = selectedCell.RowIndex;
@@ -226,7 +227,6 @@ namespace CalendarProject
                 appointmentsDataGrid.Rows.Add(details);
             }
         }
-        #endregion
 
         private void MainWindowFormClosed(object sender, FormClosedEventArgs e)
         {
@@ -243,7 +243,7 @@ namespace CalendarProject
             DataGridViewRow selectedRow = appointmentsDataGrid.SelectedRows[Constants.MonthCalendarSelectorIndex];
             int selectedId = Convert.ToInt32(selectedRow.Cells[0].Value);
             Appointment selectedAppointment = Calendar.GetAppointmentFromId(selectedId);
-            if (Calendar.CurrentUser.Username == selectedAppointment.Owner.Username)
+            if (Calendar.CurrentUser.UserName == selectedAppointment.Owner.UserName)
             {
                 EditAppointment editAppointmentForm = new EditAppointment(this, selectedId);
                 editAppointmentForm.Show();
@@ -253,5 +253,6 @@ namespace CalendarProject
                 MessageBox.Show(Constants.NotYourAppointmentMessage);
             }
         }
+        #endregion
     }
 }

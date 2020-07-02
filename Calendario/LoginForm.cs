@@ -12,7 +12,10 @@ namespace CalendarProject
 {
     public partial class LoginForm : Form
     {
+        #region fields
         public event EventHandler OnLogin;
+        #endregion
+        #region methods
         public LoginForm()
         {
             InitializeComponent();
@@ -47,5 +50,6 @@ namespace CalendarProject
         {
             Application.Exit();
         }
+        #endregion
     }
 }

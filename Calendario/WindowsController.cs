@@ -9,8 +9,8 @@ namespace CalendarProject
     public class WindowsController
     {
         #region fields
-        private MainWindow mainWindow;
-        private LoginForm loginForm;
+        private readonly MainWindow mainWindow;
+        private readonly LoginForm loginForm;
         #endregion
         #region
         public WindowsController(LoginForm loginForm, MainWindow mainWindow)

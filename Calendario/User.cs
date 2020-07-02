@@ -9,17 +9,20 @@ namespace CalendarProject
     [Serializable]
     public class User
     {
-        private string username;
-
-        public string Username
+        #region fields
+        private string userName;
+        #endregion
+        #region properties
+        public string UserName
         {
-            get => username;
-            set => username = value;
+            get => userName;
+            set => userName = value;
         }
 
-        public User(string username)
+        public User(string userName)
         {
-            this.username = username;
+            this.userName = userName;
         }
+        #endregion
     }
 }

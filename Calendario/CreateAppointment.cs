@@ -41,16 +41,6 @@ namespace CalendarProject
             datePicker.Value = DateTime.Now;
         }
 
-        private void InitializeUsersListBox()
-        {
-            usersListBox.Items.Clear();
-            List<User> possibleInvitedUsers = Calendar.GetPossibleInvitedUsers(datePicker.Value, startTimePicker.Value.TimeOfDay, endTimePicker.Value.TimeOfDay);
-            foreach (User user in possibleInvitedUsers)
-            {
-                usersListBox.Items.Add(user.Username);
-            }
-        }
-
         private void CreateAppointment()
         {
             string title = titleTextBox.Text;
@@ -62,7 +52,7 @@ namespace CalendarProject
             List<string> selectedUsers = usersListBox.SelectedItems.Cast<string>().ToList();
             foreach (string username in selectedUsers)
             {
-                invitedUsers.Add(Calendar.Users.Find(user => user.Username == username));
+                invitedUsers.Add(Calendar.Users.Find(user => user.UserName == username));
             }
             Appointment appointment = new Appointment(title, description, startTime, endTime, date, Calendar.CurrentUser, invitedUsers);
             Calendar.SaveAppointment(appointment);
@@ -84,7 +74,7 @@ namespace CalendarProject
             return formValid;
         }
 
-        private void ShowMessage(string message)
+        private static void ShowMessage(string message)
         {
             MessageBox.Show(message);
         }
@@ -92,7 +82,7 @@ namespace CalendarProject
         private bool CheckImportantFieldsComplete()
         {
             bool allFieldsComplete = true;
-            if (titleTextBox.Text == String.Empty)
+            if (string.IsNullOrEmpty(titleTextBox.Text))
             {
                 allFieldsComplete = false;
             }
@@ -116,8 +106,6 @@ namespace CalendarProject
             mainWindow.DrawWeekCalendar();
         }
 
-        #endregion
-
         private void DatePickerValueChanged(object sender, EventArgs e)
         {
             InitializeUsersListBox();
@@ -132,5 +120,16 @@ namespace CalendarProject
         {
             InitializeUsersListBox();
         }
+
+        private void InitializeUsersListBox()
+        {
+            usersListBox.Items.Clear();
+            List<User> possibleInvitedUsers = Calendar.GetPossibleInvitedUsers(datePicker.Value, startTimePicker.Value.TimeOfDay, endTimePicker.Value.TimeOfDay);
+            foreach (User user in possibleInvitedUsers)
+            {
+                usersListBox.Items.Add(user.UserName);
+            }
+        }
+        #endregion
     }
 }

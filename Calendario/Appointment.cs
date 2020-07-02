@@ -10,7 +10,7 @@ namespace CalendarProject
     public class Appointment
     {
         #region fields
-        public static int nextId = 1;
+        public static int NextId = 1;
         private int id;
         private string title;
         private string description;
@@ -71,7 +71,7 @@ namespace CalendarProject
         #region methods
         public Appointment(string title, string description, TimeSpan startTime, TimeSpan endTime, DateTime date, User owner, List<User> invitedUsers)
         {
-            id = nextId;
+            id = NextId;
             this.title = title;
             this.description = description;
             this.startTime = startTime;
@@ -79,7 +79,7 @@ namespace CalendarProject
             this.date = date;
             this.owner = owner;
             this.invitedUsers = invitedUsers;
-            nextId += Constants.IndexNormalizer;
+            NextId += Constants.IndexNormalizer;
         }
         #endregion
     }
