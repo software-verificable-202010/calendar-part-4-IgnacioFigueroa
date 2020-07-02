@@ -41,7 +41,6 @@ namespace Calendar.Tests
         [Category("Calendar.cs Tests")]
         public void GetCurrentMonthWeeks_NotSundayFirstDayOfWeek_ReturnsCorrectMonthWeeks()
         {
-            //Arrange.
             string[] firstWeek = new string[] { string.Empty, "1", "2", "3\n12:30Hrs - Tes...", "4", "5", "6" };
             string[] secondWeek = new string[] { "7", "8", "9", "10", "11", "12", "13" };
             string[] thirdWeek = new string[] { "14", "15", "16", "17", "18", "19", "20" };
@@ -49,11 +48,8 @@ namespace Calendar.Tests
             string[] fifthWeek = new string[] { "28", "29", "30", "31", string.Empty, string.Empty, string.Empty };
 
             List<string[]> expected = new List<string[]> {firstWeek, secondWeek, thirdWeek, fourthWeek, fifthWeek  };
-
-            //Act.
             List<string[]> result = CalendarProject.Calendar.GetCurrentMonthWeeks();
 
-            //Assert.
             Assert.AreEqual(expected, result);
        
         }
@@ -62,7 +58,7 @@ namespace Calendar.Tests
         [Category("Calendar.cs Tests")]
         public void GetCurrentWeekHours_WeekWithTwoMonthsAndOneAppointment_ReturnCorrectWeekHours()
         {
-            //Arrange.
+
             List<string[]> expected = new List<string[]> { };
             for (int hour = 0; hour < 24; hour++)
             {
@@ -80,11 +76,8 @@ namespace Calendar.Tests
                 }
                 
             }
-            
-            //Act.
             List<string[]> result = CalendarProject.Calendar.GetCurrentWeekHours();
 
-            //Assert.
             Assert.AreEqual(expected, result);
         }
 
@@ -92,13 +85,8 @@ namespace Calendar.Tests
         [Category("Calendar.cs Tests")]
         public void GetAppointmentsDetailsMonthCalendar_DateWithAppointmentSelected_ReturnsCorrectDetails()
         {
-            //Arrange.
             List<string[]> expected = new List<string[]> { new string[] { _appointment.Id.ToString(), _appointment.Title, _appointment.Description, _appointment.StartTime.ToString(@"hh\:mm"), _appointment.EndTime.ToString(@"hh\:mm") } };
-
-            //Act.
             List<string[]> result = CalendarProject.Calendar.GetAppointmentsDetailsMonthCalendar(currentDateToTest);
-
-            //Assert.
             Assert.AreEqual(expected, result);
         }
 
@@ -106,13 +94,8 @@ namespace Calendar.Tests
         [Category("Calendar.cs Tests")]
         public void GetCurrentWeekDays_DateWithTwoMonthOnWeek_ReturnsWeekWithTwoMonths()
         {
-            //Arrange.
             List<int> expected = new List<int> {30, 1, 2, 3, 4, 5, 6 };
-
-            //Act.
             List<int> result = CalendarProject.Calendar.GetCurrentWeekDays();
-
-            //Assert.
             Assert.AreEqual(expected, result);
         }
 
@@ -120,14 +103,9 @@ namespace Calendar.Tests
         [Category("Calendar.cs Tests")]
         public void GetAppointmentsDetailsWeekCalendar_SelectedDateAndTimeIntervalWithAppointment_ReturnDetailsWithAppointment()
         {
-            //Arrange.
             (TimeSpan, TimeSpan) timeInterval = (new TimeSpan(13, 0, 0), new TimeSpan(14, 0, 0));
             List<string[]> expected = new List<string[]> { new string[] { _appointment.Id.ToString(), _appointment.Title, _appointment.Description, _appointment.StartTime.ToString(@"hh\:mm"), _appointment.EndTime.ToString(@"hh\:mm") } }; 
-
-            //Act.
             List<string[]> result = CalendarProject.Calendar.GetAppointmentsDetailsWeekCalendar(currentDateToTest, timeInterval);
-
-            //Assert.
             Assert.AreEqual(expected, result);
         }
 
@@ -135,13 +113,8 @@ namespace Calendar.Tests
         [Category("Calendar.cs Tests")]
         public void GetPossibleInvitedUsers_DateWithAnAvailableUser_ReturnListWithAnUser()
         {
-            //Arrange.
             List<User> expected = new List<User> { _invitedUser };
-
-            //Act.
             List<User> result = CalendarProject.Calendar.GetPossibleInvitedUsers(currentDateToTest, appointmentStartTime, appointmentEndTime);
-
-            //Assert.
             Assert.AreEqual(expected, result);
         }
 
